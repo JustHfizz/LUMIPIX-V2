@@ -1,1 +1,0 @@
-# Foto-Editor-V2
