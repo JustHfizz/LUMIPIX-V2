@@ -14,20 +14,14 @@
     margin:0;
     padding:0;
     box-sizing:border-box;
-
-    font-family:
-    'SF Pro Display',
-    sans-serif;
+    font-family:'SF Pro Display',sans-serif;
 }
 
 html,
 body{
-
     width:100%;
     height:100%;
-
     background:#04070f;
-
     overflow:hidden;
 }
 
@@ -39,18 +33,19 @@ body{
     linear-gradient(135deg,#09111f,#0f172a,#04070f);
 
     display:flex;
-
     justify-content:center;
-
     align-items:center;
 
     padding:20px;
 }
 
+/* ===================================================== */
+/* CONTAINER                                              */
+/* ===================================================== */
+
 .container{
 
     width:100%;
-
     height:calc(100vh - 40px);
 
     display:flex;
@@ -82,13 +77,14 @@ body{
 
 .sidebar{
 
-    width:420px;
+    width:430px;
 
     padding:30px;
 
     border-radius:40px;
 
     overflow-y:auto;
+    overflow-x:hidden;
 
     background:
     rgba(255,255,255,0.04);
@@ -106,54 +102,29 @@ body{
     transparent;
 }
 
-/* ===================================================== */
-/* LIQUID GLASS SCROLLBAR                                */
-/* ===================================================== */
-
-.sidebar::-webkit-scrollbar,
-.tools-box::-webkit-scrollbar{
-
-    width:14px;
+.sidebar::-webkit-scrollbar{
+    width:8px;
 }
 
-.sidebar::-webkit-scrollbar-track,
-.tools-box::-webkit-scrollbar-track{
-
-    background:
-    rgba(255,255,255,0.03);
-
-    border-radius:999px;
-
-    backdrop-filter:
-    blur(25px);
+.sidebar::-webkit-scrollbar-track{
+    background:transparent;
 }
 
-.sidebar::-webkit-scrollbar-thumb,
-.tools-box::-webkit-scrollbar-thumb{
+.sidebar::-webkit-scrollbar-thumb{
 
     border-radius:999px;
 
     background:
     linear-gradient(
         180deg,
-        rgba(255,255,255,0.28),
+        rgba(255,255,255,0.25),
         rgba(255,255,255,0.08)
     );
-
-    border:
-    1px solid rgba(255,255,255,0.18);
-
-    box-shadow:
-    inset 0 1px 1px rgba(255,255,255,0.45),
-    0 4px 14px rgba(0,0,0,0.25);
-
-    backdrop-filter:
-    blur(25px);
 }
 
-/* ===================================================== */
-/* TEXT                                                   */
-/* ===================================================== */
+.sidebar::-webkit-scrollbar-button{
+    display:none;
+}
 
 .sidebar h1{
 
@@ -221,7 +192,11 @@ input[type="range"]{
     border-radius:999px;
 
     background:
-    rgba(255,255,255,0.1);
+    rgba(255,255,255,0.12);
+
+    outline:none;
+
+    cursor:pointer;
 }
 
 input[type="range"]::-webkit-slider-thumb{
@@ -239,10 +214,22 @@ input[type="range"]::-webkit-slider-thumb{
 
     box-shadow:
     0 0 16px rgba(255,255,255,0.7);
+
+    transition:
+    transform .2s ease,
+    box-shadow .2s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover{
+
+    transform:scale(1.1);
+
+    box-shadow:
+    0 0 22px rgba(255,255,255,0.9);
 }
 
 /* ===================================================== */
-/* FILTER PREVIEW                                         */
+/* FILTERS                                                */
 /* ===================================================== */
 
 .filter-grid{
@@ -251,57 +238,88 @@ input[type="range"]::-webkit-slider-thumb{
 
     grid-template-columns:1fr 1fr;
 
-    gap:18px;
+    gap:16px;
+
+    align-items:start;
 }
 
 .filter-card{
 
     padding:12px;
 
-    border-radius:26px;
+    border-radius:24px;
 
     background:
-    rgba(255,255,255,0.05);
+    rgba(255,255,255,0.04);
 
     backdrop-filter:
     blur(25px);
 
     border:
-    1px solid rgba(255,255,255,0.10);
+    1px solid rgba(255,255,255,0.08);
+
+    transition:
+    transform .25s ease,
+    box-shadow .25s ease;
 
     cursor:pointer;
 
-    transition:.25s;
+    overflow:visible;
+
+    position:relative;
+
+    z-index:1;
+}
+
+.filter-card:hover{
+
+    transform:
+    translateY(-4px);
+
+    box-shadow:
+    0 12px 24px rgba(0,0,0,0.25);
+
+    z-index:5;
 }
 
 .filter-card.active{
 
     border:
-    1px solid rgba(255,255,255,0.25);
+    1px solid rgba(255,255,255,0.22);
 
     box-shadow:
-    0 0 20px rgba(255,255,255,0.08);
+    0 0 18px rgba(255,255,255,0.08);
+
+    z-index:20;
 }
 
 .filter-preview{
 
     width:100%;
 
-    height:100px;
+    aspect-ratio:1/1;
 
     border-radius:18px;
 
-    background-image:
-    url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1000');
-
-    background-size:cover;
-
-    background-position:center;
+    overflow:hidden;
 
     margin-bottom:10px;
 
+    background:
+    rgba(255,255,255,0.05);
+
     border:
-    1px solid rgba(255,255,255,0.12);
+    1px solid rgba(255,255,255,0.1);
+}
+
+.filter-preview canvas{
+
+    width:100%;
+    height:100%;
+
+    display:block;
+
+    object-fit:cover;
 }
 
 .filter-name{
@@ -320,102 +338,52 @@ input[type="range"]::-webkit-slider-thumb{
     display:none;
 
     margin-top:14px;
+
+    position:relative;
+
+    z-index:9999;
+
+    overflow:visible;
 }
 
 .filter-slider.active{
 
     display:block;
+
+    animation:
+    fadeSlider .22s ease;
 }
 
-/* ===================================================== */
-/* FILTER EFFECT PREVIEW                                 */
-/* ===================================================== */
+@keyframes fadeSlider{
 
-.preview-bw{
-    filter:grayscale(100%);
+    from{
+
+        opacity:0;
+
+        transform:
+        translateY(-6px);
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:
+        translateY(0);
+    }
 }
 
-.preview-warm{
-    filter:sepia(70%) saturate(130%);
-}
+.filter-intensity{
 
-.preview-cool{
-    filter:hue-rotate(180deg);
-}
+    display:flex;
 
-.preview-vintage{
-    filter:sepia(45%) contrast(110%);
-}
+    justify-content:space-between;
 
-.preview-dreamy{
-    filter:blur(1px) brightness(110%);
-}
+    color:white;
 
-.preview-neon{
-    filter:saturate(200%) contrast(130%);
-}
+    font-size:13px;
 
-.preview-fade{
-    filter:contrast(80%) brightness(110%);
-}
-
-.preview-cinema{
-    filter:contrast(120%) saturate(70%);
-}
-
-.preview-soft{
-    filter:brightness(115%) saturate(80%);
-}
-
-.preview-dark{
-    filter:brightness(70%) contrast(120%);
-}
-
-/* ===================================================== */
-/* LIQUID BUTTONS                                         */
-/* ===================================================== */
-
-.upload-btn,
-.tool-btn{
-
-    position:relative;
-
-    overflow:hidden;
-
-    background:
-    rgba(255,255,255,0.05);
-
-    backdrop-filter:
-    blur(25px);
-
-    border:
-    1px solid rgba(255,255,255,0.18);
-
-    box-shadow:
-    inset 0 1px 1px rgba(255,255,255,0.45),
-    inset 0 -1px 1px rgba(255,255,255,0.06),
-    0 10px 24px rgba(0,0,0,0.25);
-
-    transition:.25s;
-}
-
-.upload-btn::before,
-.tool-btn::before{
-
-    content:"";
-
-    position:absolute;
-
-    inset:1px;
-
-    border-radius:inherit;
-
-    background:
-    linear-gradient(
-        180deg,
-        rgba(255,255,255,0.18),
-        rgba(255,255,255,0.02)
-    );
+    margin-bottom:8px;
 }
 
 /* ===================================================== */
@@ -438,8 +406,6 @@ input[type="range"]::-webkit-slider-thumb{
 .topbar{
 
     height:92px;
-
-    min-height:92px;
 
     padding:14px;
 
@@ -470,6 +436,81 @@ input[type="range"]::-webkit-slider-thumb{
     padding-left:18px;
 }
 
+/* ===================================================== */
+/* LIQUID BUTTONS                                         */
+/* ===================================================== */
+
+.upload-btn,
+.tool-btn{
+
+    position:relative;
+
+    overflow:hidden;
+
+    background:
+    rgba(255,255,255,0.05);
+
+    backdrop-filter:
+    blur(25px);
+
+    border:
+    1px solid rgba(255,255,255,0.14);
+
+    box-shadow:
+    inset 0 1px 1px rgba(255,255,255,0.35),
+    inset 0 -1px 1px rgba(255,255,255,0.03),
+    0 10px 24px rgba(0,0,0,0.22);
+
+    transition:
+    transform .22s ease,
+    box-shadow .22s ease,
+    border .22s ease;
+}
+
+.upload-btn::before,
+.tool-btn::before{
+
+    content:"";
+
+    position:absolute;
+
+    inset:1px;
+
+    border-radius:inherit;
+
+    background:
+    linear-gradient(
+        180deg,
+        rgba(255,255,255,0.16),
+        rgba(255,255,255,0.02)
+    );
+}
+
+.upload-btn:hover,
+.tool-btn:hover{
+
+    transform:
+    translateY(-3px)
+    scale(1.03);
+
+    box-shadow:
+    0 16px 32px rgba(0,0,0,0.3);
+
+    border:
+    1px solid rgba(255,255,255,0.24);
+}
+
+.upload-btn:active,
+.tool-btn:active{
+
+    transform:
+    scale(0.92);
+}
+
+/* ===================================================== */
+/* UPLOAD                                                 */
+/* ===================================================== */
+
 .upload-btn{
 
     width:280px;
@@ -490,6 +531,10 @@ input[type="range"]::-webkit-slider-thumb{
 
     font-weight:600;
 }
+
+/* ===================================================== */
+/* WORKSPACE                                              */
+/* ===================================================== */
 
 .workspace{
 
@@ -530,8 +575,6 @@ input[type="range"]::-webkit-slider-thumb{
 
     border:
     1px solid rgba(255,255,255,0.08);
-
-    min-height:0;
 }
 
 canvas{
@@ -564,6 +607,8 @@ canvas{
 
     gap:18px;
 
+    overflow-y:auto;
+
     background:
     rgba(255,255,255,0.04);
 
@@ -572,8 +617,10 @@ canvas{
 
     border:
     1px solid rgba(255,255,255,0.08);
+}
 
-    overflow-y:auto;
+.tools-box::-webkit-scrollbar{
+    width:0;
 }
 
 .tools-title{
@@ -586,10 +633,6 @@ canvas{
 
     margin-bottom:4px;
 }
-
-/* ===================================================== */
-/* TOOL BUTTON BULAT                                      */
-/* ===================================================== */
 
 .tool-btn{
 
@@ -611,16 +654,39 @@ canvas{
     flex-shrink:0;
 }
 
+.tool-btn.active{
+
+    background:
+    linear-gradient(
+        180deg,
+        rgba(16,185,129,0.28),
+        rgba(16,185,129,0.08)
+    );
+
+    box-shadow:
+    0 0 22px rgba(16,185,129,0.4);
+}
+
 .tool-icon{
 
     width:28px;
     height:28px;
 
+    z-index:2;
+
     filter:
     brightness(0)
     invert(1);
 
-    z-index:2;
+    transition:
+    transform .25s ease;
+}
+
+.tool-btn:hover .tool-icon{
+
+    transform:
+    scale(1.1)
+    rotate(-5deg);
 }
 
 /* ===================================================== */
@@ -646,13 +712,13 @@ canvas{
     color:white;
 
     background:
-    rgba(255,255,255,0.08);
+    rgba(16,185,129,0.18);
 
     backdrop-filter:
     blur(25px);
 
     border:
-    1px solid rgba(255,255,255,0.2);
+    1px solid rgba(16,185,129,0.35);
 
     z-index:99;
 }
@@ -664,400 +730,198 @@ canvas{
 
 <div class="container">
 
-    <!-- SIDEBAR -->
+<div class="sidebar">
 
-    <div class="sidebar">
+<h1>Photo Editor</h1>
 
-        <h1>Photo Editor</h1>
+<div class="subtitle">
+Liquid Glass Interface
+</div>
 
-        <div class="subtitle">
-            Liquid Glass Interface
-        </div>
+<div class="group">
 
-        <!-- ADJUSTMENTS -->
+<h2>Adjustments</h2>
 
-        <div class="group">
+<div class="slider-box">
 
-            <h2>Adjustments</h2>
+<label>
+Brightness
+<span id="brightnessValue">0%</span>
+</label>
 
-            <div class="slider-box">
+<input
+type="range"
+id="brightness"
+min="-100"
+max="100"
+value="0">
 
-                <label>
-                    Brightness
-                    <span id="brightnessValue">0%</span>
-                </label>
+</div>
 
-                <input
-                type="range"
-                id="brightness"
-                min="-100"
-                max="100"
-                value="0">
+<div class="slider-box">
 
-            </div>
+<label>
+Contrast
+<span id="contrastValue">0%</span>
+</label>
 
-            <div class="slider-box">
+<input
+type="range"
+id="contrast"
+min="-100"
+max="100"
+value="0">
 
-                <label>
-                    Contrast
-                    <span id="contrastValue">0%</span>
-                </label>
+</div>
 
-                <input
-                type="range"
-                id="contrast"
-                min="-100"
-                max="100"
-                value="0">
+<div class="slider-box">
 
-            </div>
+<label>
+Saturation
+<span id="saturationValue">0%</span>
+</label>
 
-            <div class="slider-box">
+<input
+type="range"
+id="saturation"
+min="-100"
+max="100"
+value="0">
 
-                <label>
-                    Saturation
-                    <span id="saturationValue">0%</span>
-                </label>
+</div>
 
-                <input
-                type="range"
-                id="saturation"
-                min="-100"
-                max="100"
-                value="0">
+</div>
 
-            </div>
+<div class="group">
 
-        </div>
+<h2>Filters</h2>
 
-        <!-- FILTERS -->
+<div class="filter-grid" id="filterGrid"></div>
 
-        <div class="group">
+</div>
 
-            <h2>Filters</h2>
+</div>
 
-            <div class="filter-grid">
+<div class="editor">
 
-                <div class="filter-card" onclick="toggleFilter(this,'bw')">
+<div class="topbar">
 
-                    <div class="filter-preview preview-bw"></div>
+<h2>Liquid Glass Editor</h2>
 
-                    <div class="filter-name">B&W</div>
+<label class="upload-btn">
 
-                    <div class="filter-slider" id="bwSlider">
+Upload Photo
 
-                        <input
-                        type="range"
-                        min="0"
-                        max="100"
-                        value="0"
-                        oninput="updateFilter('bw',this.value)">
+<input
+type="file"
+id="upload"
+accept="image/*"
+hidden>
 
-                    </div>
+</label>
 
-                </div>
+</div>
 
-                <div class="filter-card" onclick="toggleFilter(this,'warm')">
+<div class="workspace">
 
-                    <div class="filter-preview preview-warm"></div>
+<div
+class="photo-box"
+id="canvasContainer">
 
-                    <div class="filter-name">Warm</div>
+<div
+class="crop-warning"
+id="cropWarning">
 
-                    <div class="filter-slider" id="warmSlider">
+✂ Crop Mode Aktif
 
-                        <input
-                        type="range"
-                        min="0"
-                        max="100"
-                        value="0"
-                        oninput="updateFilter('warm',this.value)">
+</div>
 
-                    </div>
+<canvas id="canvas"></canvas>
 
-                </div>
+</div>
 
-                <div class="filter-card" onclick="toggleFilter(this,'cool')">
+<div class="tools-box">
 
-                    <div class="filter-preview preview-cool"></div>
+<div class="tools-title">
+Tools
+</div>
 
-                    <div class="filter-name">Cool</div>
+<button
+class="tool-btn"
+id="cropBtn"
+onclick="activateCrop(this)">
 
-                    <div class="filter-slider" id="coolSlider">
+<img
+src="https://img.icons8.com/ios-filled/100/FFFFFF/crop.png"
+class="tool-icon">
 
-                        <input
-                        type="range"
-                        min="0"
-                        max="100"
-                        value="0"
-                        oninput="updateFilter('cool',this.value)">
+</button>
 
-                    </div>
+<button
+class="tool-btn"
+onclick="activateTool(this); rotateImage();">
 
-                </div>
+<img
+src="https://img.icons8.com/ios-filled/100/FFFFFF/rotate-right.png"
+class="tool-icon">
 
-                <div class="filter-card" onclick="toggleFilter(this,'vintage')">
+</button>
 
-                    <div class="filter-preview preview-vintage"></div>
+<button
+class="tool-btn"
+onclick="activateTool(this); flipImage();">
 
-                    <div class="filter-name">Vintage</div>
+<img
+src="https://img.icons8.com/ios-filled/100/FFFFFF/flip-horizontal.png"
+class="tool-icon">
 
-                    <div class="filter-slider" id="vintageSlider">
+</button>
 
-                        <input
-                        type="range"
-                        min="0"
-                        max="100"
-                        value="0"
-                        oninput="updateFilter('vintage',this.value)">
+<button
+class="tool-btn"
+onclick="activateTool(this); zoomIn();">
 
-                    </div>
+<img
+src="https://img.icons8.com/ios-filled/100/FFFFFF/zoom-in.png"
+class="tool-icon">
 
-                </div>
+</button>
 
-                <div class="filter-card" onclick="toggleFilter(this,'dreamy')">
+<button
+class="tool-btn"
+onclick="activateTool(this); zoomOut();">
 
-                    <div class="filter-preview preview-dreamy"></div>
+<img
+src="https://img.icons8.com/ios-filled/100/FFFFFF/zoom-out.png"
+class="tool-icon">
 
-                    <div class="filter-name">Dreamy</div>
+</button>
 
-                    <div class="filter-slider" id="dreamySlider">
+<button
+class="tool-btn"
+onclick="activateTool(this); resetImage();">
 
-                        <input
-                        type="range"
-                        min="0"
-                        max="100"
-                        value="0"
-                        oninput="updateFilter('dreamy',this.value)">
+<img
+src="https://img.icons8.com/ios-filled/100/FFFFFF/restart.png"
+class="tool-icon">
 
-                    </div>
+</button>
 
-                </div>
+<button
+class="tool-btn"
+onclick="activateTool(this); downloadImage();">
 
-                <div class="filter-card" onclick="toggleFilter(this,'neon')">
+<img
+src="https://img.icons8.com/ios-filled/100/FFFFFF/download--v1.png"
+class="tool-icon">
 
-                    <div class="filter-preview preview-neon"></div>
+</button>
 
-                    <div class="filter-name">Neon</div>
+</div>
 
-                    <div class="filter-slider" id="neonSlider">
+</div>
 
-                        <input
-                        type="range"
-                        min="0"
-                        max="100"
-                        value="0"
-                        oninput="updateFilter('neon',this.value)">
-
-                    </div>
-
-                </div>
-
-                <div class="filter-card" onclick="toggleFilter(this,'fade')">
-
-                    <div class="filter-preview preview-fade"></div>
-
-                    <div class="filter-name">Fade</div>
-
-                    <div class="filter-slider" id="fadeSlider">
-
-                        <input
-                        type="range"
-                        min="0"
-                        max="100"
-                        value="0"
-                        oninput="updateFilter('fade',this.value)">
-
-                    </div>
-
-                </div>
-
-                <div class="filter-card" onclick="toggleFilter(this,'cinema')">
-
-                    <div class="filter-preview preview-cinema"></div>
-
-                    <div class="filter-name">Cinema</div>
-
-                    <div class="filter-slider" id="cinemaSlider">
-
-                        <input
-                        type="range"
-                        min="0"
-                        max="100"
-                        value="0"
-                        oninput="updateFilter('cinema',this.value)">
-
-                    </div>
-
-                </div>
-
-                <div class="filter-card" onclick="toggleFilter(this,'soft')">
-
-                    <div class="filter-preview preview-soft"></div>
-
-                    <div class="filter-name">Soft</div>
-
-                    <div class="filter-slider" id="softSlider">
-
-                        <input
-                        type="range"
-                        min="0"
-                        max="100"
-                        value="0"
-                        oninput="updateFilter('soft',this.value)">
-
-                    </div>
-
-                </div>
-
-                <div class="filter-card" onclick="toggleFilter(this,'dark')">
-
-                    <div class="filter-preview preview-dark"></div>
-
-                    <div class="filter-name">Dark</div>
-
-                    <div class="filter-slider" id="darkSlider">
-
-                        <input
-                        type="range"
-                        min="0"
-                        max="100"
-                        value="0"
-                        oninput="updateFilter('dark',this.value)">
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-    <!-- EDITOR -->
-
-    <div class="editor">
-
-        <div class="topbar">
-
-            <h2>Liquid Glass Editor</h2>
-
-            <label class="upload-btn">
-
-                Upload Photo
-
-                <input
-                type="file"
-                id="upload"
-                accept="image/*"
-                hidden>
-
-            </label>
-
-        </div>
-
-        <div class="workspace">
-
-            <div
-            class="photo-box"
-            id="canvasContainer">
-
-                <div
-                class="crop-warning"
-                id="cropWarning">
-
-                    ✂ Crop Mode Aktif
-
-                </div>
-
-                <canvas id="canvas"></canvas>
-
-            </div>
-
-            <!-- TOOLS -->
-
-            <div class="tools-box">
-
-                <div class="tools-title">
-                    Tools
-                </div>
-
-                <button
-                class="tool-btn"
-                id="cropBtn"
-                onclick="activateCrop(this)">
-
-                    <img
-                    src="https://img.icons8.com/ios-filled/100/FFFFFF/crop.png"
-                    class="tool-icon">
-
-                </button>
-
-                <button
-                class="tool-btn"
-                onclick="activateTool(this); rotateImage();">
-
-                    <img
-                    src="https://img.icons8.com/ios-filled/100/FFFFFF/rotate-right.png"
-                    class="tool-icon">
-
-                </button>
-
-                <button
-                class="tool-btn"
-                onclick="activateTool(this); flipImage();">
-
-                    <img
-                    src="https://img.icons8.com/ios-filled/100/FFFFFF/flip-horizontal.png"
-                    class="tool-icon">
-
-                </button>
-
-                <button
-                class="tool-btn"
-                onclick="activateTool(this); zoomIn();">
-
-                    <img
-                    src="https://img.icons8.com/ios-filled/100/FFFFFF/zoom-in.png"
-                    class="tool-icon">
-
-                </button>
-
-                <button
-                class="tool-btn"
-                onclick="activateTool(this); zoomOut();">
-
-                    <img
-                    src="https://img.icons8.com/ios-filled/100/FFFFFF/zoom-out.png"
-                    class="tool-icon">
-
-                </button>
-
-                <button
-                class="tool-btn"
-                onclick="activateTool(this); resetImage();">
-
-                    <img
-                    src="https://img.icons8.com/ios-filled/100/FFFFFF/restart.png"
-                    class="tool-icon">
-
-                </button>
-
-                <button
-                class="tool-btn"
-                onclick="activateTool(this); downloadImage();">
-
-                    <img
-                    src="https://img.icons8.com/ios-filled/100/FFFFFF/download--v1.png"
-                    class="tool-icon">
-
-                </button>
-
-            </div>
-
-        </div>
-
-    </div>
+</div>
 
 </div>
 
@@ -1081,6 +945,10 @@ document.getElementById("cropWarning");
 
 const canvasContainer =
 document.getElementById("canvasContainer");
+
+/* ===================================================== */
+/* ADJUSTMENTS                                            */
+/* ===================================================== */
 
 const brightnessSlider =
 document.getElementById("brightness");
@@ -1108,7 +976,7 @@ let img = new Image();
 
 let originalImage = "";
 
-let currentImage = "";
+let firstUploadedImage = "";
 
 let scale = 1;
 
@@ -1117,35 +985,6 @@ let rotation = 0;
 let flip = 1;
 
 let cropMode = false;
-
-/* ===================================================== */
-/* FILTERS                                                */
-/* ===================================================== */
-
-let filters = {
-
-    bw:0,
-    warm:0,
-    cool:0,
-    vintage:0,
-    dreamy:0,
-    neon:0,
-    fade:0,
-    cinema:0,
-    soft:0,
-    dark:0
-};
-
-/* ===================================================== */
-/* ADJUSTMENTS VALUE                                      */
-/* ===================================================== */
-
-let adjustments = {
-
-    brightness:100,
-    contrast:100,
-    saturation:100
-};
 
 /* ===================================================== */
 /* CROP STATE                                             */
@@ -1160,43 +999,148 @@ let cropEndX = 0;
 let cropEndY = 0;
 
 /* ===================================================== */
+/* FILTERS                                                */
+/* ===================================================== */
+
+const filterList = [
+
+{key:"grayscale",name:"Grayscale"},
+{key:"blur",name:"Blur"},
+{key:"sepia",name:"Sepia"},
+{key:"invert",name:"Invert"},
+{key:"contrast",name:"Contrast"},
+{key:"bright",name:"Bright"},
+{key:"cool",name:"Cool"},
+{key:"warm",name:"Warm"},
+{key:"vintage",name:"Vintage"},
+{key:"fade",name:"Fade"}
+
+];
+
+let filters = {};
+
+filterList.forEach(f=>{
+
+filters[f.key] = {
+
+active:false,
+intensity:0
+
+};
+
+});
+
+/* ===================================================== */
+/* ADJUSTMENTS VALUE                                      */
+/* ===================================================== */
+
+let adjustments = {
+
+brightness:100,
+contrast:100,
+saturation:100
+
+};
+
+/* ===================================================== */
+/* CREATE FILTER UI                                       */
+/* ===================================================== */
+
+const filterGrid =
+document.getElementById("filterGrid");
+
+filterList.forEach(filter=>{
+
+filterGrid.innerHTML += `
+
+<div
+class="filter-card"
+onclick="toggleFilter('${filter.key}',this,event)">
+
+<div class="filter-preview">
+
+<canvas
+id="preview-${filter.key}"
+width="120"
+height="120"></canvas>
+
+</div>
+
+<div class="filter-name">
+${filter.name}
+</div>
+
+<div
+class="filter-slider"
+id="slider-${filter.key}">
+
+<div class="filter-intensity">
+
+<span>Intensity</span>
+
+<span
+id="value-${filter.key}">
+0%
+</span>
+
+</div>
+
+<input
+type="range"
+min="0"
+max="100"
+value="0"
+onclick="event.stopPropagation()"
+oninput="
+updateFilter(
+'${filter.key}',
+this.value
+)">
+
+</div>
+
+</div>
+`;
+
+});
+
+/* ===================================================== */
 /* UPLOAD IMAGE                                           */
 /* ===================================================== */
 
 upload.addEventListener("change",(e)=>{
 
-    const file = e.target.files[0];
+const file = e.target.files[0];
 
-    if(!file) return;
+if(!file) return;
 
-    const reader = new FileReader();
+const reader = new FileReader();
 
-    reader.onload = function(event){
+reader.onload = function(event){
 
-        img = new Image();
+img.onload = ()=>{
 
-        img.onload = ()=>{
+resizeCanvas();
 
-            originalImage =
-            event.target.result;
+drawImage();
 
-            currentImage =
-            event.target.result;
+generateFilterPreviews();
 
-            scale = 1;
-            rotation = 0;
-            flip = 1;
+};
 
-            resizeCanvas();
+img.src =
+event.target.result;
 
-            drawImage();
-        };
+originalImage =
+event.target.result;
 
-        img.src =
-        event.target.result;
-    };
+firstUploadedImage =
+event.target.result;
 
-    reader.readAsDataURL(file);
+};
+
+reader.readAsDataURL(file);
+
 });
 
 /* ===================================================== */
@@ -1205,11 +1149,113 @@ upload.addEventListener("change",(e)=>{
 
 function resizeCanvas(){
 
-    canvas.width =
-    canvasContainer.clientWidth - 40;
+canvas.width =
+canvasContainer.clientWidth - 40;
 
-    canvas.height =
-    canvasContainer.clientHeight - 40;
+canvas.height =
+canvasContainer.clientHeight - 40;
+
+}
+
+/* ===================================================== */
+/* FILTER STRING                                          */
+/* ===================================================== */
+
+function getFilterString(){
+
+let filterString = `
+brightness(${adjustments.brightness}%)
+contrast(${adjustments.contrast}%)
+saturate(${adjustments.saturation}%)
+`;
+
+if(filters.grayscale.active){
+
+filterString +=
+` grayscale(${filters.grayscale.intensity}%)`;
+
+}
+
+if(filters.blur.active){
+
+filterString +=
+` blur(${filters.blur.intensity / 10}px)`;
+
+}
+
+if(filters.sepia.active){
+
+filterString +=
+` sepia(${filters.sepia.intensity}%)`;
+
+}
+
+if(filters.invert.active){
+
+filterString +=
+` invert(${filters.invert.intensity}%)`;
+
+}
+
+if(filters.contrast.active){
+
+filterString +=
+` contrast(${100 + filters.contrast.intensity}%)`;
+
+}
+
+if(filters.bright.active){
+
+filterString +=
+` brightness(${100 + filters.bright.intensity}%)`;
+
+}
+
+if(filters.cool.active){
+
+filterString +=
+` hue-rotate(${filters.cool.intensity * 2}deg)`;
+
+}
+
+if(filters.warm.active){
+
+filterString +=
+`
+sepia(${filters.warm.intensity * 0.6}%)
+saturate(${100 + filters.warm.intensity}%)
+hue-rotate(-${filters.warm.intensity / 3}deg)
+`;
+
+}
+
+if(filters.vintage.active){
+
+filterString +=
+`
+sepia(${filters.vintage.intensity * 0.7}%)
+contrast(${100 + filters.vintage.intensity / 2}%)
+brightness(${100 - filters.vintage.intensity / 5}%)
+`;
+
+}
+
+if(filters.fade.active){
+
+const fadeValue =
+100 - (filters.fade.intensity / 2);
+
+filterString +=
+`
+contrast(${fadeValue}%)
+saturate(${fadeValue}%)
+brightness(${100 + filters.fade.intensity / 8}%)
+`;
+
+}
+
+return filterString;
+
 }
 
 /* ===================================================== */
@@ -1218,115 +1264,195 @@ function resizeCanvas(){
 
 function drawImage(){
 
-    ctx.clearRect(
-        0,
-        0,
-        canvas.width,
-        canvas.height
-    );
+if(!img.src) return;
 
-    if(!img.src) return;
+ctx.clearRect(
+0,
+0,
+canvas.width,
+canvas.height
+);
 
-    ctx.filter = `
-    brightness(${adjustments.brightness - filters.dark * 0.3 + filters.soft * 0.1}%)
-    contrast(${adjustments.contrast + filters.neon * 0.3 + filters.cinema * 0.2}%)
-    saturate(${adjustments.saturation + filters.neon + filters.warm * 0.3}%)
-    grayscale(${filters.bw}%)
-    sepia(${filters.warm * 0.7 + filters.vintage * 0.5}%)
-    blur(${filters.dreamy * 0.02}px)
-    hue-rotate(${filters.cool * 1.5}deg)
-    opacity(${100 - filters.fade * 0.15}%)
-    `;
+ctx.filter =
+getFilterString();
 
-    const imageAspect =
-    img.width / img.height;
+const imageAspect =
+img.width / img.height;
 
-    const canvasAspect =
-    canvas.width / canvas.height;
+const canvasAspect =
+canvas.width / canvas.height;
 
-    let renderWidth;
-    let renderHeight;
+let renderWidth;
+let renderHeight;
 
-    if(imageAspect > canvasAspect){
+if(imageAspect > canvasAspect){
 
-        renderWidth =
-        canvas.width * 0.9 * scale;
+renderWidth =
+canvas.width * scale;
 
-        renderHeight =
-        renderWidth / imageAspect;
-    }
-    else{
+renderHeight =
+renderWidth / imageAspect;
 
-        renderHeight =
-        canvas.height * 0.9 * scale;
+}
+else{
 
-        renderWidth =
-        renderHeight * imageAspect;
-    }
+renderHeight =
+canvas.height * scale;
 
-    ctx.save();
+renderWidth =
+renderHeight * imageAspect;
 
-    ctx.translate(
-        canvas.width / 2,
-        canvas.height / 2
-    );
+}
 
-    ctx.scale(flip,1);
+ctx.save();
 
-    ctx.rotate(
-        rotation * Math.PI / 180
-    );
+ctx.translate(
+canvas.width / 2,
+canvas.height / 2
+);
 
-    ctx.drawImage(
-        img,
-        -renderWidth/2,
-        -renderHeight/2,
-        renderWidth,
-        renderHeight
-    );
+ctx.scale(flip,1);
 
-    ctx.restore();
+ctx.rotate(
+rotation * Math.PI / 180
+);
 
-    if(cropMode && isDragging){
+ctx.drawImage(
+img,
+-renderWidth/2,
+-renderHeight/2,
+renderWidth,
+renderHeight
+);
 
-        const x =
-        Math.min(cropStartX,cropEndX);
+ctx.restore();
 
-        const y =
-        Math.min(cropStartY,cropEndY);
+if(cropMode && isDragging){
 
-        const width =
-        Math.abs(cropEndX - cropStartX);
+const x =
+Math.min(cropStartX,cropEndX);
 
-        const height =
-        Math.abs(cropEndY - cropStartY);
+const y =
+Math.min(cropStartY,cropEndY);
 
-        ctx.strokeStyle =
-        "#ffffff";
+const width =
+Math.abs(cropEndX - cropStartX);
 
-        ctx.lineWidth = 2;
+const height =
+Math.abs(cropEndY - cropStartY);
 
-        ctx.setLineDash([8]);
+ctx.strokeStyle =
+"#10b981";
 
-        ctx.strokeRect(
-            x,
-            y,
-            width,
-            height
-        );
+ctx.lineWidth = 3;
 
-        ctx.fillStyle =
-        "rgba(255,255,255,0.08)";
+ctx.setLineDash([8]);
 
-        ctx.fillRect(
-            x,
-            y,
-            width,
-            height
-        );
+ctx.strokeRect(
+x,
+y,
+width,
+height
+);
 
-        ctx.setLineDash([]);
-    }
+}
+
+}
+
+/* ===================================================== */
+/* FILTER PREVIEW                                         */
+/* ===================================================== */
+
+function generateFilterPreviews(){
+
+if(!img.src) return;
+
+filterList.forEach(filter=>{
+
+const preview =
+document.getElementById(
+`preview-${filter.key}`);
+
+const pctx =
+preview.getContext("2d");
+
+pctx.clearRect(
+0,
+0,
+preview.width,
+preview.height
+);
+
+let previewFilter =
+"none";
+
+switch(filter.key){
+
+case "grayscale":
+previewFilter =
+"grayscale(100%)";
+break;
+
+case "blur":
+previewFilter =
+"blur(2px)";
+break;
+
+case "sepia":
+previewFilter =
+"sepia(100%)";
+break;
+
+case "invert":
+previewFilter =
+"invert(100%)";
+break;
+
+case "contrast":
+previewFilter =
+"contrast(180%)";
+break;
+
+case "bright":
+previewFilter =
+"brightness(160%)";
+break;
+
+case "cool":
+previewFilter =
+"hue-rotate(180deg)";
+break;
+
+case "warm":
+previewFilter =
+"sepia(60%) saturate(140%)";
+break;
+
+case "vintage":
+previewFilter =
+"sepia(40%) contrast(120%)";
+break;
+
+case "fade":
+previewFilter =
+"opacity(70%)";
+break;
+
+}
+
+pctx.filter =
+previewFilter;
+
+pctx.drawImage(
+img,
+0,
+0,
+preview.width,
+preview.height
+);
+
+});
+
 }
 
 /* ===================================================== */
@@ -1335,87 +1461,93 @@ function drawImage(){
 
 brightnessSlider.addEventListener("input",()=>{
 
-    adjustments.brightness =
-    Number(brightnessSlider.value) + 100;
+adjustments.brightness =
+Number(brightnessSlider.value) + 100;
 
-    brightnessValue.innerText =
-    brightnessSlider.value + "%";
+brightnessValue.innerText =
+brightnessSlider.value + "%";
 
-    drawImage();
+drawImage();
+
 });
 
 contrastSlider.addEventListener("input",()=>{
 
-    adjustments.contrast =
-    Number(contrastSlider.value) + 100;
+adjustments.contrast =
+Number(contrastSlider.value) + 100;
 
-    contrastValue.innerText =
-    contrastSlider.value + "%";
+contrastValue.innerText =
+contrastSlider.value + "%";
 
-    drawImage();
+drawImage();
+
 });
 
 saturationSlider.addEventListener("input",()=>{
 
-    adjustments.saturation =
-    Number(saturationSlider.value) + 100;
+adjustments.saturation =
+Number(saturationSlider.value) + 100;
 
-    saturationValue.innerText =
-    saturationSlider.value + "%";
+saturationValue.innerText =
+saturationSlider.value + "%";
 
-    drawImage();
+drawImage();
+
 });
 
 /* ===================================================== */
-/* FILTERS                                                */
+/* FILTER TOGGLE                                          */
 /* ===================================================== */
 
-function toggleFilter(card,name){
+function toggleFilter(name,card,event){
 
-    const sliderBox =
-    document.getElementById(name + "Slider");
+if(event.target.closest(".filter-slider")) return;
 
-    const isActive =
-    card.classList.contains("active");
+filters[name].active =
+!filters[name].active;
 
-    document
-    .querySelectorAll(".filter-card")
-    .forEach(c=>{
+const slider =
+document.getElementById(
+`slider-${name}`);
 
-        c.classList.remove("active");
-    });
+if(filters[name].active){
 
-    document
-    .querySelectorAll(".filter-slider")
-    .forEach(s=>{
+card.classList.add("active");
 
-        s.classList.remove("active");
-    });
+slider.classList.add("active");
 
-    if(isActive){
+}
+else{
 
-        filters[name] = 0;
+card.classList.remove("active");
 
-        const slider =
-        sliderBox.querySelector("input");
+slider.classList.remove("active");
 
-        slider.value = 0;
+filters[name].intensity = 0;
 
-        drawImage();
+slider.querySelector("input").value = 0;
 
-        return;
-    }
+document.getElementById(
+`value-${name}`).innerText =
+"0%";
 
-    card.classList.add("active");
+}
 
-    sliderBox.classList.add("active");
+drawImage();
+
 }
 
 function updateFilter(name,value){
 
-    filters[name] = Number(value);
+filters[name].intensity =
+Number(value);
 
-    drawImage();
+document.getElementById(
+`value-${name}`).innerText =
+value + "%";
+
+drawImage();
+
 }
 
 /* ===================================================== */
@@ -1424,14 +1556,24 @@ function updateFilter(name,value){
 
 function activateTool(button){
 
-    document
-    .querySelectorAll(".tool-btn")
-    .forEach(btn=>{
+if(button.classList.contains("active")){
 
-        btn.classList.remove("active");
-    });
+button.classList.remove("active");
 
-    button.classList.add("active");
+return;
+
+}
+
+document
+.querySelectorAll(".tool-btn")
+.forEach(btn=>{
+
+btn.classList.remove("active");
+
+});
+
+button.classList.add("active");
+
 }
 
 /* ===================================================== */
@@ -1440,9 +1582,10 @@ function activateTool(button){
 
 function rotateImage(){
 
-    rotation += 90;
+rotation += 90;
 
-    drawImage();
+drawImage();
+
 }
 
 /* ===================================================== */
@@ -1451,9 +1594,10 @@ function rotateImage(){
 
 function flipImage(){
 
-    flip *= -1;
+flip *= -1;
 
-    drawImage();
+drawImage();
+
 }
 
 /* ===================================================== */
@@ -1462,21 +1606,24 @@ function flipImage(){
 
 function zoomIn(){
 
-    scale += 0.1;
+scale += 0.1;
 
-    drawImage();
+drawImage();
+
 }
 
 function zoomOut(){
 
-    scale -= 0.1;
+scale -= 0.1;
 
-    if(scale < 0.2){
+if(scale < 0.2){
 
-        scale = 0.2;
-    }
+scale = 0.2;
 
-    drawImage();
+}
+
+drawImage();
+
 }
 
 /* ===================================================== */
@@ -1485,88 +1632,111 @@ function zoomOut(){
 
 function resetImage(){
 
-    if(!originalImage) return;
+if(!firstUploadedImage) return;
 
-    img = new Image();
+scale = 1;
 
-    img.onload = function(){
+rotation = 0;
 
-        currentImage =
-        originalImage;
+flip = 1;
 
-        scale = 1;
+cropMode = false;
 
-        rotation = 0;
+isDragging = false;
 
-        flip = 1;
+adjustments = {
 
-        adjustments = {
+brightness:100,
+contrast:100,
+saturation:100
 
-            brightness:100,
-            contrast:100,
-            saturation:100
-        };
+};
 
-        filters = {
+brightnessSlider.value = 0;
+contrastSlider.value = 0;
+saturationSlider.value = 0;
 
-            bw:0,
-            warm:0,
-            cool:0,
-            vintage:0,
-            dreamy:0,
-            neon:0,
-            fade:0,
-            cinema:0,
-            soft:0,
-            dark:0
-        };
+brightnessValue.innerText = "0%";
+contrastValue.innerText = "0%";
+saturationValue.innerText = "0%";
 
-        brightnessSlider.value = 0;
-        contrastSlider.value = 0;
-        saturationSlider.value = 0;
+filterList.forEach(f=>{
 
-        brightnessValue.innerText = "0%";
-        contrastValue.innerText = "0%";
-        saturationValue.innerText = "0%";
+filters[f.key].active = false;
 
-        document
-        .querySelectorAll(".filter-card")
-        .forEach(card=>{
+filters[f.key].intensity = 0;
 
-            card.classList.remove("active");
-        });
+const sliderBox =
+document.getElementById(
+`slider-${f.key}`);
 
-        document
-        .querySelectorAll(".filter-slider")
-        .forEach(slider=>{
+const sliderInput =
+sliderBox.querySelector("input");
 
-            slider.classList.remove("active");
+sliderBox.classList.remove("active");
 
-            slider.querySelector("input").value = 0;
-        });
+sliderInput.value = 0;
 
-        drawImage();
-    };
+document.getElementById(
+`value-${f.key}`).innerText =
+"0%";
 
-    img.src = originalImage;
+});
+
+document
+.querySelectorAll(".filter-card")
+.forEach(card=>{
+
+card.classList.remove("active");
+
+});
+
+document
+.querySelectorAll(".tool-btn")
+.forEach(btn=>{
+
+btn.classList.remove("active");
+
+});
+
+const resetImg =
+new Image();
+
+resetImg.onload = ()=>{
+
+img = resetImg;
+
+originalImage =
+firstUploadedImage;
+
+drawImage();
+
+generateFilterPreviews();
+
+};
+
+resetImg.src =
+firstUploadedImage;
+
 }
 
 /* ===================================================== */
-/* SAVE                                                   */
+/* DOWNLOAD                                               */
 /* ===================================================== */
 
 function downloadImage(){
 
-    const link =
-    document.createElement("a");
+const link =
+document.createElement("a");
 
-    link.download =
-    "edited-image.png";
+link.download =
+"edited-image.png";
 
-    link.href =
-    canvas.toDataURL();
+link.href =
+canvas.toDataURL();
 
-    link.click();
+link.click();
+
 }
 
 /* ===================================================== */
@@ -1575,76 +1745,80 @@ function downloadImage(){
 
 function activateCrop(button){
 
-    cropMode = !cropMode;
+cropMode = !cropMode;
 
-    if(cropMode){
+if(cropMode){
 
-        activateTool(button);
+activateTool(button);
 
-        cropWarning.style.display =
-        "block";
+cropWarning.style.display =
+"block";
 
-        setTimeout(()=>{
+setTimeout(()=>{
 
-            cropWarning.style.display =
-            "none";
+cropWarning.style.display =
+"none";
 
-        },2000);
-    }
-    else{
+},3000);
 
-        button.classList.remove("active");
-    }
+}
+else{
+
+button.classList.remove("active");
+
+}
+
 }
 
 /* ===================================================== */
-/* CROP EVENTS                                            */
+/* CROP SELECT                                            */
 /* ===================================================== */
 
 canvas.addEventListener("mousedown",(e)=>{
 
-    if(!cropMode) return;
+if(!cropMode) return;
 
-    isDragging = true;
+isDragging = true;
 
-    const rect =
-    canvas.getBoundingClientRect();
+const rect =
+canvas.getBoundingClientRect();
 
-    cropStartX =
-    e.clientX - rect.left;
+cropStartX =
+e.clientX - rect.left;
 
-    cropStartY =
-    e.clientY - rect.top;
+cropStartY =
+e.clientY - rect.top;
 
-    cropEndX = cropStartX;
-    cropEndY = cropStartY;
+cropEndX = cropStartX;
+cropEndY = cropStartY;
 
-    drawImage();
 });
 
 canvas.addEventListener("mousemove",(e)=>{
 
-    if(!cropMode || !isDragging) return;
+if(!cropMode || !isDragging) return;
 
-    const rect =
-    canvas.getBoundingClientRect();
+const rect =
+canvas.getBoundingClientRect();
 
-    cropEndX =
-    e.clientX - rect.left;
+cropEndX =
+e.clientX - rect.left;
 
-    cropEndY =
-    e.clientY - rect.top;
+cropEndY =
+e.clientY - rect.top;
 
-    drawImage();
+drawImage();
+
 });
 
 canvas.addEventListener("mouseup",()=>{
 
-    if(!cropMode || !isDragging) return;
+if(!cropMode || !isDragging) return;
 
-    isDragging = false;
+isDragging = false;
 
-    applyCrop();
+applyCrop();
+
 });
 
 /* ===================================================== */
@@ -1653,65 +1827,71 @@ canvas.addEventListener("mouseup",()=>{
 
 function applyCrop(){
 
-    const x =
-    Math.min(cropStartX,cropEndX);
+const x =
+Math.min(cropStartX,cropEndX);
 
-    const y =
-    Math.min(cropStartY,cropEndY);
+const y =
+Math.min(cropStartY,cropEndY);
 
-    const width =
-    Math.abs(cropEndX - cropStartX);
+const width =
+Math.abs(cropEndX - cropStartX);
 
-    const height =
-    Math.abs(cropEndY - cropStartY);
+const height =
+Math.abs(cropEndY - cropStartY);
 
-    if(width < 20 || height < 20){
+if(width < 20 || height < 20){
 
-        drawImage();
-        return;
-    }
+drawImage();
+return;
 
-    const tempCanvas =
-    document.createElement("canvas");
+}
 
-    const tempCtx =
-    tempCanvas.getContext("2d");
+const tempCanvas =
+document.createElement("canvas");
 
-    tempCanvas.width = width;
-    tempCanvas.height = height;
+const tempCtx =
+tempCanvas.getContext("2d");
 
-    tempCtx.drawImage(
-        canvas,
-        x,
-        y,
-        width,
-        height,
-        0,
-        0,
-        width,
-        height
-    );
+tempCanvas.width = width;
+tempCanvas.height = height;
 
-    const cropped =
-    tempCanvas.toDataURL();
+tempCtx.drawImage(
+canvas,
+x,
+y,
+width,
+height,
+0,
+0,
+width,
+height
+);
 
-    currentImage = cropped;
+const cropped =
+tempCanvas.toDataURL();
 
-    img.onload = ()=>{
+img.onload = ()=>{
 
-        drawImage();
-    };
+drawImage();
 
-    img.src = cropped;
+generateFilterPreviews();
 
-    cropMode = false;
+};
 
-    document
-    .querySelectorAll(".tool-btn")
-    .forEach(btn=>{
+img.src = cropped;
 
-        btn.classList.remove("active");
-    });
+originalImage = cropped;
+
+cropMode = false;
+
+document
+.querySelectorAll(".tool-btn")
+.forEach(btn=>{
+
+btn.classList.remove("active");
+
+});
+
 }
 
 /* ===================================================== */
@@ -1722,9 +1902,10 @@ window.addEventListener(
 "resize",
 ()=>{
 
-    resizeCanvas();
+resizeCanvas();
 
-    drawImage();
+drawImage();
+
 });
 
 /* ===================================================== */
