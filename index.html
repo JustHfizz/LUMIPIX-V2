@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Foto Editor V2 PCD</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+  <div class="sidebar">
+    <h1>Photo Editor</h1>
+    <div class="subtitle">Liquid Glass Interface</div>
+
+    <div class="group">
+      <h2>Adjustments</h2>
+
+      <div class="slider-box">
+        <label>Brightness <span id="brightnessValue">0%</span></label>
+        <input type="range" id="brightness" min="-100" max="100" value="0">
+      </div>
+
+      <div class="slider-box">
+        <label>Contrast <span id="contrastValue">0%</span></label>
+        <input type="range" id="contrast" min="-100" max="100" value="0">
+      </div>
+
+      <div class="slider-box">
+        <label>Saturation <span id="saturationValue">0%</span></label>
+        <input type="range" id="saturation" min="-100" max="100" value="0">
+      </div>
+
+      <div class="slider-box">
+        <label>Noise / Smooth <span id="noiseValue">0%</span></label>
+        <input type="range" id="noise" min="-100" max="100" value="0">
+      </div>
+
+      <div class="slider-box">
+        <label>Shadow / Highlight <span id="shadowValue">0%</span></label>
+        <input type="range" id="shadow" min="-100" max="100" value="0">
+      </div>
+    </div>
+
+    <div class="group">
+      <h2>Filters</h2>
+      <div class="filter-grid" id="filterGrid"></div>
+    </div>
+  </div>
+
+  <div class="editor">
+    <div class="topbar">
+      <h2>PROJECT PCD✨</h2>
+      <label class="upload-btn">
+        Upload Photo
+        <input type="file" id="upload" accept="image/*" hidden>
+      </label>
+    </div>
+
+    <div class="workspace">
+      <div class="photo-box" id="canvasContainer">
+        <div class="crop-warning" id="cropWarning">✂ Crop Mode Aktif</div>
+        <canvas id="canvas"></canvas>
+      </div>
+
+      <div class="tools-box">
+        <div class="tools-title">Tools</div>
+
+        <button class="tool-btn" id="cropBtn" onclick="activateCrop(this)">
+          <img src="https://img.icons8.com/ios-filled/100/FFFFFF/crop.png" class="tool-icon">
+        </button>
+
+        <div id="rotateToolWrap" style="width:100%;display:flex;flex-direction:column;align-items:center;gap:6px;">
+          <button class="tool-btn" id="rotateToggleBtn" onclick="toggleRotateTool(this)">
+            <img src="https://img.icons8.com/ios-filled/100/FFFFFF/rotate-right.png" class="tool-icon">
+          </button>
+          <div id="rotateSliderWrap" style="display:none;width:100%;padding:0 4px;">
+            <input type="range" id="rotationSlider" min="-180" max="180" value="0"
+              style="width:100%;writing-mode:vertical-lr;direction:rtl;height:110px;appearance:slider-vertical;-webkit-appearance:slider-vertical;"
+              oninput="onRotationSlider(this.value)">
+            <div style="color:rgba(255,255,255,0.7);font-size:11px;text-align:center;margin-top:4px;" id="rotationDeg">0°</div>
+          </div>
+        </div>
+
+        <button class="tool-btn" onclick="activateTool(this); flipImage();">
+          <img src="https://img.icons8.com/ios-filled/100/FFFFFF/flip-horizontal.png" class="tool-icon">
+        </button>
+
+        <button class="tool-btn" onclick="activateTool(this); zoomIn();">
+          <img src="https://img.icons8.com/ios-filled/100/FFFFFF/zoom-in.png" class="tool-icon">
+        </button>
+
+        <button class="tool-btn" onclick="activateTool(this); zoomOut();">
+          <img src="https://img.icons8.com/ios-filled/100/FFFFFF/zoom-out.png" class="tool-icon">
+        </button>
+
+        <button class="tool-btn" onclick="activateTool(this); resetImage();">
+          <img src="https://img.icons8.com/ios-filled/100/FFFFFF/restart.png" class="tool-icon">
+        </button>
+
+        <button class="tool-btn" onclick="activateTool(this); downloadImage();">
+          <img src="https://img.icons8.com/ios-filled/100/FFFFFF/download--v1.png" class="tool-icon">
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
