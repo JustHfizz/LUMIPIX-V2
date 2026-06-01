@@ -1,0 +1,2208 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Foto Editor V2 PCD </title>
+
+<style>
+
+@import url('https://fonts.cdnfonts.com/css/sf-pro-display');
+
+/* ===================================================== */
+/* CSS VARIABLES — APPLE LIQUID GLASS SYSTEM             */
+/* ===================================================== */
+
+:root {
+  /* Glass layers */
+  --glass-fill:         rgba(255,255,255,0.072);
+  --glass-fill-deep:    rgba(255,255,255,0.042);
+  --glass-fill-hover:   rgba(255,255,255,0.11);
+  --glass-border:       rgba(255,255,255,0.18);
+  --glass-border-soft:  rgba(255,255,255,0.10);
+  /* Specular top-edge highlight */
+  --spec-top:           rgba(255,255,255,0.55);
+  --spec-top-soft:      rgba(255,255,255,0.28);
+  /* Shadows */
+  --shadow-deep:        0 24px 64px rgba(0,0,0,0.55), 0 4px 16px rgba(0,0,0,0.35);
+  --shadow-card:        0 8px 32px rgba(0,0,0,0.38), 0 1px 4px rgba(0,0,0,0.25);
+  --shadow-btn:         0 6px 20px rgba(0,0,0,0.40), 0 1px 3px rgba(0,0,0,0.30);
+  /* Accent */
+  --accent:             #34d399;
+  --accent-glow:        rgba(52,211,153,0.45);
+  /* Blur */
+  --blur-glass:         blur(48px) saturate(180%);
+  --blur-panel:         blur(36px) saturate(160%);
+  --blur-btn:           blur(24px) saturate(150%);
+  /* Radius */
+  --r-container: 48px;
+  --r-panel:     36px;
+  --r-card:      24px;
+  --r-btn:       999px;
+  --r-tool:      22px;
+}
+
+/* ===================================================== */
+/* RESET                                                  */
+/* ===================================================== */
+
+*, *::before, *::after {
+  margin: 0; padding: 0;
+  box-sizing: border-box;
+  font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+}
+
+body {
+  background:
+    radial-gradient(ellipse 80% 60% at 10% 5%,  rgba(108,70,255,0.55) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 55% at 92% 95%,  rgba(20,210,130,0.50) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 50% at 55% 45%,  rgba(30,80,180,0.25) 0%, transparent 60%),
+    linear-gradient(155deg, #080c18 0%, #0b1225 40%, #060d1a 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 18px;
+}
+
+/* Subtle animated ambient orbs */
+body::before, body::after {
+  content: "";
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.35;
+  pointer-events: none;
+  animation: drift 18s ease-in-out infinite alternate;
+}
+body::before {
+  width: 520px; height: 520px;
+  top: -120px; left: -120px;
+  background: radial-gradient(circle, rgba(120,80,255,0.7), transparent 70%);
+}
+body::after {
+  width: 420px; height: 420px;
+  bottom: -100px; right: -100px;
+  background: radial-gradient(circle, rgba(20,210,130,0.65), transparent 70%);
+  animation-delay: -9s;
+}
+@keyframes drift {
+  from { transform: translate(0,0) scale(1); }
+  to   { transform: translate(40px,30px) scale(1.08); }
+}
+
+/* ===================================================== */
+/* LIQUID GLASS MIXIN (applied via classes)              */
+/* ===================================================== */
+
+/* Base glass panel */
+.lg {
+  background: var(--glass-fill);
+  backdrop-filter: var(--blur-glass);
+  -webkit-backdrop-filter: var(--blur-glass);
+  border: 1px solid var(--glass-border-soft);
+  box-shadow: var(--shadow-card);
+  position: relative;
+}
+
+/* Specular top-edge shimmer via pseudo */
+.lg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    180deg,
+    var(--spec-top) 0%,
+    rgba(255,255,255,0.06) 3%,
+    transparent 18%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Inner refraction rim */
+.lg::after {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: inherit;
+  background: linear-gradient(
+    160deg,
+    rgba(255,255,255,0.13) 0%,
+    transparent 40%,
+    rgba(255,255,255,0.04) 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* All lg children sit above pseudo layers */
+.lg > * { position: relative; z-index: 1; }
+
+/* ===================================================== */
+/* CONTAINER                                              */
+/* ===================================================== */
+
+.container {
+  width: 100%;
+  height: calc(100vh - 36px);
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+  border-radius: var(--r-container);
+  background: rgba(255,255,255,0.045);
+  backdrop-filter: var(--blur-glass);
+  -webkit-backdrop-filter: var(--blur-glass);
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    var(--shadow-deep),
+    inset 0 1.5px 0 rgba(255,255,255,0.22),
+    inset 0 -1px 0 rgba(0,0,0,0.20);
+  overflow: hidden;
+  position: relative;
+}
+
+/* Specular top line on container */
+.container::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 10%; right: 10%;
+  height: 1.5px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6) 40%, rgba(255,255,255,0.6) 60%, transparent);
+  border-radius: 999px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* ===================================================== */
+/* SIDEBAR                                                */
+/* ===================================================== */
+
+.sidebar {
+  width: 420px;
+  padding: 28px 26px;
+  border-radius: var(--r-panel);
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--glass-fill-deep);
+  backdrop-filter: var(--blur-panel);
+  -webkit-backdrop-filter: var(--blur-panel);
+  border: 1px solid var(--glass-border-soft);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255,255,255,0.20),
+    inset 1px 0 0 rgba(255,255,255,0.06),
+    0 8px 32px rgba(0,0,0,0.35);
+  position: relative;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.18) transparent;
+}
+
+.sidebar::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 12%; right: 12%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-track { background: transparent; }
+.sidebar::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(255,255,255,0.15);
+}
+.sidebar::-webkit-scrollbar-button { display: none; }
+
+.sidebar h1 {
+  color: #fff;
+  font-size: 46px;
+  font-weight: 700;
+  letter-spacing: -1.5px;
+  margin-bottom: 6px;
+  /* Glass text shimmer */
+  background: linear-gradient(135deg, #fff 30%, rgba(255,255,255,0.65) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.subtitle {
+  color: rgba(255,255,255,0.45);
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  margin-bottom: 34px;
+}
+
+.group { margin-bottom: 34px; }
+
+.group h2 {
+  color: rgba(255,255,255,0.80);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+
+/* ===================================================== */
+/* SLIDER — Liquid Glass Track                           */
+/* ===================================================== */
+
+.slider-box { margin-bottom: 20px; }
+
+.slider-box label {
+  display: flex;
+  justify-content: space-between;
+  color: rgba(255,255,255,0.85);
+  margin-bottom: 10px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.slider-box label span {
+  color: rgba(255,255,255,0.45);
+  font-size: 13px;
+  font-weight: 400;
+}
+
+input[type="range"] {
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.10);
+  outline: none;
+  cursor: pointer;
+  box-shadow:
+    inset 0 1px 2px rgba(0,0,0,0.3),
+    inset 0 -1px 0 rgba(255,255,255,0.06);
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: linear-gradient(160deg, rgba(255,255,255,0.98) 0%, rgba(210,220,230,0.90) 100%);
+  cursor: pointer;
+  box-shadow:
+    0 2px 12px rgba(0,0,0,0.45),
+    0 1px 3px rgba(0,0,0,0.30),
+    inset 0 1px 0 rgba(255,255,255,0.95),
+    0 0 0 1.5px rgba(255,255,255,0.25);
+  transition: transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .18s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow:
+    0 4px 18px rgba(0,0,0,0.50),
+    0 0 0 3px rgba(255,255,255,0.18),
+    inset 0 1px 0 rgba(255,255,255,0.95);
+}
+
+input[type="range"]::-webkit-slider-thumb:active {
+  transform: scale(0.94);
+}
+
+/* ===================================================== */
+/* FILTER GRID                                            */
+/* ===================================================== */
+
+.filter-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  align-items: start;
+}
+
+.filter-card {
+  padding: 10px;
+  border-radius: var(--r-card);
+  background: rgba(255,255,255,0.055);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid rgba(255,255,255,0.10);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.20),
+    0 4px 16px rgba(0,0,0,0.28);
+  transition: transform .24s cubic-bezier(.34,1.56,.64,1), box-shadow .24s ease, border-color .24s ease;
+  cursor: pointer;
+  overflow: visible;
+  position: relative;
+  z-index: 1;
+}
+
+.filter-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 15%; right: 15%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent);
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.filter-card:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.25),
+    0 16px 36px rgba(0,0,0,0.40);
+  border-color: rgba(255,255,255,0.18);
+  z-index: 5;
+}
+
+.filter-card.active {
+  border-color: rgba(52,211,153,0.50);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.22),
+    0 0 0 1px rgba(52,211,153,0.25),
+    0 8px 28px rgba(0,0,0,0.35),
+    0 0 20px rgba(52,211,153,0.12);
+  z-index: 20;
+}
+
+.filter-preview {
+  width: 100%;
+  aspect-ratio: 1/1;
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 8px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.10);
+}
+
+.filter-preview canvas {
+  width: 100%; height: 100%;
+  display: block;
+  object-fit: cover;
+  cursor: default;
+}
+
+.filter-name {
+  color: rgba(255,255,255,0.88);
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.filter-slider {
+  display: none;
+  margin-top: 12px;
+  position: relative;
+  z-index: 9999;
+  overflow: visible;
+}
+
+.filter-slider.active {
+  display: block;
+  animation: fadeSlider .20s ease;
+}
+
+@keyframes fadeSlider {
+  from { opacity: 0; transform: translateY(-5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.filter-intensity {
+  display: flex;
+  justify-content: space-between;
+  color: rgba(255,255,255,0.55);
+  font-size: 12px;
+  margin-bottom: 7px;
+}
+
+/* ===================================================== */
+/* EDITOR COLUMN                                          */
+/* ===================================================== */
+
+.editor {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-height: 0;
+}
+
+/* ===================================================== */
+/* TOPBAR                                                 */
+/* ===================================================== */
+
+.topbar {
+  height: 88px;
+  padding: 12px 16px;
+  border-radius: var(--r-panel);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: var(--blur-panel);
+  -webkit-backdrop-filter: var(--blur-panel);
+  border: 1px solid var(--glass-border-soft);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255,255,255,0.22),
+    inset 0 -1px 0 rgba(0,0,0,0.15),
+    0 8px 30px rgba(0,0,0,0.30);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle iridescent sheen on topbar */
+.topbar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    110deg,
+    transparent 30%,
+    rgba(180,150,255,0.06) 50%,
+    rgba(100,220,200,0.05) 70%,
+    transparent 80%
+  );
+  pointer-events: none;
+}
+
+.topbar h2 {
+  color: #fff;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  padding-left: 12px;
+  position: relative;
+  z-index: 1;
+  background: linear-gradient(135deg, #fff 40%, rgba(255,255,255,0.6) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ===================================================== */
+/* UPLOAD BUTTON — Pill Liquid Glass                     */
+/* ===================================================== */
+
+.upload-btn {
+  position: relative;
+  overflow: hidden;
+  width: 260px;
+  height: 58px;
+  border-radius: var(--r-btn);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  color: rgba(255,255,255,0.92);
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.2px;
+  /* Layered glass */
+  background: rgba(255,255,255,0.10);
+  backdrop-filter: var(--blur-btn);
+  -webkit-backdrop-filter: var(--blur-btn);
+  border: 1px solid rgba(255,255,255,0.22);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255,255,255,0.55),
+    inset 0 -1px 0 rgba(255,255,255,0.06),
+    inset 1px 0 0 rgba(255,255,255,0.10),
+    0 6px 24px rgba(0,0,0,0.42),
+    0 1px 4px rgba(0,0,0,0.28);
+  transition: transform .20s cubic-bezier(.34,1.56,.64,1), box-shadow .20s ease, background .20s ease;
+  z-index: 1;
+}
+
+/* Top specular arc */
+.upload-btn::before {
+  content: "";
+  position: absolute;
+  top: 1px;
+  left: 12%;
+  right: 12%;
+  height: 40%;
+  border-radius: 999px 999px 60% 60%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.38) 0%, transparent 100%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Subtle fill gradient */
+.upload-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(160deg, rgba(255,255,255,0.12) 0%, transparent 55%, rgba(255,255,255,0.03) 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.upload-btn span, .upload-btn > * { position: relative; z-index: 3; }
+
+.upload-btn:hover {
+  background: rgba(255,255,255,0.145);
+  transform: translateY(-3px) scale(1.025);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255,255,255,0.60),
+    inset 0 -1px 0 rgba(255,255,255,0.06),
+    0 12px 36px rgba(0,0,0,0.50),
+    0 2px 8px rgba(0,0,0,0.30);
+  border-color: rgba(255,255,255,0.32);
+}
+
+.upload-btn:active {
+  transform: scale(0.94) translateY(1px);
+  box-shadow:
+    inset 0 2px 6px rgba(0,0,0,0.25),
+    0 2px 8px rgba(0,0,0,0.30);
+}
+
+/* ===================================================== */
+/* WORKSPACE                                              */
+/* ===================================================== */
+
+.workspace {
+  flex: 1;
+  display: flex;
+  gap: 20px;
+  min-height: 0;
+}
+
+/* ===================================================== */
+/* PHOTO BOX                                              */
+/* ===================================================== */
+
+.photo-box {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--r-panel);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0,0,0,0.28);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.10);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255,255,255,0.14),
+    inset 0 -1px 0 rgba(0,0,0,0.25),
+    0 8px 32px rgba(0,0,0,0.40);
+}
+
+/* ===================================================== */
+/* CANVAS                                                 */
+/* ===================================================== */
+
+canvas {
+  border-radius: 20px;
+  cursor: default;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+canvas.crop-mode { cursor: crosshair !important; }
+
+.filter-preview canvas {
+  width: 100%; height: 100%;
+  display: block;
+  object-fit: cover;
+  cursor: default;
+  border-radius: 0;
+}
+
+/* ===================================================== */
+/* CROP WARNING                                           */
+/* ===================================================== */
+
+.crop-warning {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: none;
+  padding: 12px 22px;
+  border-radius: 999px;
+  color: rgba(255,255,255,0.95);
+  font-size: 14px;
+  font-weight: 500;
+  background: rgba(52,211,153,0.18);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid rgba(52,211,153,0.40);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.25),
+    0 6px 20px rgba(0,0,0,0.30),
+    0 0 14px rgba(52,211,153,0.15);
+  z-index: 99;
+  white-space: nowrap;
+}
+
+/* ===================================================== */
+/* TOOLS BOX                                              */
+/* ===================================================== */
+
+.tools-box {
+  width: 124px;
+  padding: 18px 14px;
+  border-radius: var(--r-panel);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  overflow-y: auto;
+  background: var(--glass-fill-deep);
+  backdrop-filter: var(--blur-panel);
+  -webkit-backdrop-filter: var(--blur-panel);
+  border: 1px solid var(--glass-border-soft);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255,255,255,0.18),
+    inset 1px 0 0 rgba(255,255,255,0.05),
+    0 8px 32px rgba(0,0,0,0.35);
+  position: relative;
+}
+
+.tools-box::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 20%; right: 20%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.42), transparent);
+  pointer-events: none;
+}
+
+.tools-box::-webkit-scrollbar { width: 0; }
+
+.tools-title {
+  color: rgba(255,255,255,0.55);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+/* ===================================================== */
+/* TOOL BUTTONS — Rounded Square Liquid Glass            */
+/* ===================================================== */
+
+.tool-btn {
+  position: relative;
+  width: 62px;
+  height: 62px;
+  border-radius: var(--r-tool);
+  border: 1px solid rgba(255,255,255,0.16);
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  overflow: hidden;
+  /* Layered glass */
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: var(--blur-btn);
+  -webkit-backdrop-filter: var(--blur-btn);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255,255,255,0.45),
+    inset 0 -1px 0 rgba(255,255,255,0.04),
+    inset 1px 0 0 rgba(255,255,255,0.08),
+    0 4px 16px rgba(0,0,0,0.38),
+    0 1px 3px rgba(0,0,0,0.25);
+  transition:
+    transform .20s cubic-bezier(.34,1.56,.64,1),
+    box-shadow .20s ease,
+    background .20s ease,
+    border-color .20s ease;
+}
+
+/* Specular arc on each tool button */
+.tool-btn::before {
+  content: "";
+  position: absolute;
+  top: 1px; left: 10%; right: 10%;
+  height: 45%;
+  border-radius: 50% 50% 60% 60% / 30% 30% 70% 70%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.32) 0%, transparent 100%);
+  pointer-events: none;
+  z-index: 2;
+  transition: opacity .20s ease;
+}
+
+/* Inner refraction fill */
+.tool-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    145deg,
+    rgba(255,255,255,0.11) 0%,
+    transparent 50%,
+    rgba(255,255,255,0.03) 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.tool-btn:hover {
+  background: rgba(255,255,255,0.13);
+  transform: translateY(-4px) scale(1.05);
+  border-color: rgba(255,255,255,0.28);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255,255,255,0.55),
+    inset 0 -1px 0 rgba(255,255,255,0.06),
+    0 10px 28px rgba(0,0,0,0.48),
+    0 2px 6px rgba(0,0,0,0.28);
+}
+
+.tool-btn:active {
+  transform: scale(0.90) translateY(1px);
+  box-shadow:
+    inset 0 2px 8px rgba(0,0,0,0.30),
+    0 1px 3px rgba(0,0,0,0.20);
+}
+
+.tool-btn.active {
+  background: rgba(52,211,153,0.16);
+  border-color: rgba(52,211,153,0.45);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255,255,255,0.30),
+    0 0 0 1px rgba(52,211,153,0.20),
+    0 0 18px rgba(52,211,153,0.25),
+    0 4px 16px rgba(0,0,0,0.35);
+}
+
+.tool-btn.active::before {
+  background: linear-gradient(180deg, rgba(100,255,200,0.25) 0%, transparent 100%);
+}
+
+.tool-icon {
+  width: 26px;
+  height: 26px;
+  z-index: 3;
+  filter: brightness(0) invert(1);
+  opacity: 0.82;
+  transition: transform .22s cubic-bezier(.34,1.56,.64,1), opacity .15s ease;
+}
+
+.tool-btn:hover .tool-icon {
+  transform: scale(1.12) rotate(-4deg);
+  opacity: 1;
+}
+
+.tool-btn.active .tool-icon {
+  opacity: 1;
+  filter: brightness(0) invert(1) sepia(1) hue-rotate(110deg) saturate(2);
+}
+
+/* Rotate slider wrap sits inside tools box */
+#rotateToolWrap {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+#rotateSliderWrap {
+  width: 100%;
+  padding: 0 6px;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+}
+
+#rotationDeg {
+  color: rgba(255,255,255,0.50);
+  font-size: 11px;
+  text-align: center;
+  margin-top: 4px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="sidebar">
+
+<h1>Photo Editor</h1>
+
+<div class="subtitle">
+Liquid Glass Interface
+</div>
+
+<div class="group">
+
+<h2>Adjustments</h2>
+
+<div class="slider-box">
+
+<label>
+Brightness
+<span id="brightnessValue">0%</span>
+</label>
+
+<input
+type="range"
+id="brightness"
+min="-100"
+max="100"
+value="0">
+
+</div>
+
+<div class="slider-box">
+
+<label>
+Contrast
+<span id="contrastValue">0%</span>
+</label>
+
+<input
+type="range"
+id="contrast"
+min="-100"
+max="100"
+value="0">
+
+</div>
+
+<div class="slider-box">
+
+<label>
+Saturation
+<span id="saturationValue">0%</span>
+</label>
+
+<input
+type="range"
+id="saturation"
+min="-100"
+max="100"
+value="0">
+
+</div>
+
+<div class="slider-box">
+
+<label>
+Noise
+<span id="noiseValue">0%</span>
+</label>
+
+<input
+type="range"
+id="noise"
+min="-100"
+max="100"
+value="0">
+
+</div>
+
+<div class="slider-box">
+
+<label>
+Shadow
+<span id="shadowValue">0%</span>
+</label>
+
+<input
+type="range"
+id="shadow"
+min="-100"
+max="100"
+value="0">
+
+</div>
+
+</div>
+
+<div class="group">
+
+<h2>Filters</h2>
+
+<div class="filter-grid" id="filterGrid"></div>
+
+</div>
+
+</div>
+
+<div class="editor">
+
+<div class="topbar">
+
+<h2>PROJECT PCD✨</h2>
+
+<label class="upload-btn">
+
+Upload Photo
+
+<input
+type="file"
+id="upload"
+accept="image/*"
+hidden>
+
+</label>
+
+</div>
+
+<div class="workspace">
+
+<div
+class="photo-box"
+id="canvasContainer">
+
+<div
+class="crop-warning"
+id="cropWarning">
+
+✂ Crop Mode Aktif
+
+</div>
+
+<canvas id="canvas"></canvas>
+
+</div>
+
+<div class="tools-box">
+
+<div class="tools-title">
+Tools
+</div>
+
+<button
+class="tool-btn"
+id="cropBtn"
+onclick="activateCrop(this)">
+
+<img
+src="https://img.icons8.com/ios-filled/100/FFFFFF/crop.png"
+class="tool-icon">
+
+</button>
+
+<div id="rotateToolWrap" style="width:100%;display:flex;flex-direction:column;align-items:center;gap:6px;">
+<button
+class="tool-btn"
+id="rotateToggleBtn"
+onclick="toggleRotateTool(this)">
+<img
+src="https://img.icons8.com/ios-filled/100/FFFFFF/rotate-right.png"
+class="tool-icon">
+</button>
+<div id="rotateSliderWrap" style="display:none;width:100%;padding:0 4px;">
+<input type="range" id="rotationSlider" min="-180" max="180" value="0"
+style="width:100%;writing-mode:vertical-lr;direction:rtl;height:110px;appearance:slider-vertical;-webkit-appearance:slider-vertical;"
+oninput="onRotationSlider(this.value)">
+<div style="color:rgba(255,255,255,0.7);font-size:11px;text-align:center;margin-top:4px;" id="rotationDeg">0°</div>
+</div>
+</div>
+
+<button
+class="tool-btn"
+onclick="activateTool(this); flipImage();">
+
+<img
+src="https://img.icons8.com/ios-filled/100/FFFFFF/flip-horizontal.png"
+class="tool-icon">
+
+</button>
+
+<button
+class="tool-btn"
+onclick="activateTool(this); zoomIn();">
+
+<img
+src="https://img.icons8.com/ios-filled/100/FFFFFF/zoom-in.png"
+class="tool-icon">
+
+</button>
+
+<button
+class="tool-btn"
+onclick="activateTool(this); zoomOut();">
+
+<img
+src="https://img.icons8.com/ios-filled/100/FFFFFF/zoom-out.png"
+class="tool-icon">
+
+</button>
+
+<button
+class="tool-btn"
+onclick="activateTool(this); resetImage();">
+
+<img
+src="https://img.icons8.com/ios-filled/100/FFFFFF/restart.png"
+class="tool-icon">
+
+</button>
+
+<button
+class="tool-btn"
+onclick="activateTool(this); downloadImage();">
+
+<img
+src="https://img.icons8.com/ios-filled/100/FFFFFF/download--v1.png"
+class="tool-icon">
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+/* ===================================================== */
+/* ELEMENTS                                               */
+/* ===================================================== */
+
+const canvas =
+document.getElementById("canvas");
+
+const ctx =
+canvas.getContext("2d");
+
+const upload =
+document.getElementById("upload");
+
+const cropWarning =
+document.getElementById("cropWarning");
+
+const canvasContainer =
+document.getElementById("canvasContainer");
+
+/* ===================================================== */
+/* ADJUSTMENTS                                            */
+/* ===================================================== */
+
+const brightnessSlider =
+document.getElementById("brightness");
+
+const contrastSlider =
+document.getElementById("contrast");
+
+const saturationSlider =
+document.getElementById("saturation");
+
+const brightnessValue =
+document.getElementById("brightnessValue");
+
+const contrastValue =
+document.getElementById("contrastValue");
+
+const saturationValue =
+document.getElementById("saturationValue");
+
+const noiseSlider =
+document.getElementById("noise");
+
+const noiseValue =
+document.getElementById("noiseValue");
+
+const shadowSlider =
+document.getElementById("shadow");
+
+const shadowValue =
+document.getElementById("shadowValue");
+
+/* ===================================================== */
+/* IMAGE STATE                                            */
+/* ===================================================== */
+
+let img = new Image();
+
+let originalImage = "";
+
+let firstUploadedImage = "";
+
+let scale = 1;
+
+let rotation = 0;
+
+let flip = 1;
+
+let cropMode = false;
+
+/* ===================================================== */
+/* CROP STATE                                             */
+/* ===================================================== */
+
+let isDragging = false;
+
+let cropStartX = 0;
+let cropStartY = 0;
+
+let cropEndX = 0;
+let cropEndY = 0;
+
+/* ===================================================== */
+/* FILTERS                                                */
+/* ===================================================== */
+
+const filterList = [
+
+{key:"grayscale",name:"Grayscale"},
+{key:"blur",name:"Blur"},
+{key:"sepia",name:"Sepia"},
+{key:"invert",name:"Invert"},
+{key:"contrast",name:"Contrast"},
+{key:"bright",name:"Bright"},
+{key:"cool",name:"Cool"},
+{key:"warm",name:"Warm"},
+{key:"vintage",name:"Vintage"},
+{key:"fade",name:"Fade"}
+
+];
+
+let filters = {};
+
+filterList.forEach(f=>{
+
+filters[f.key] = {
+
+active:false,
+intensity:0
+
+};
+
+});
+
+/* ===================================================== */
+/* ADJUSTMENTS VALUE                                      */
+/* ===================================================== */
+
+let adjustments = {
+
+brightness:100,
+contrast:100,
+saturation:100,
+noise:0,
+shadow:0
+
+};
+
+/* ===================================================== */
+/* CREATE FILTER UI                                       */
+/* ===================================================== */
+
+const filterGrid =
+document.getElementById("filterGrid");
+
+filterList.forEach(filter=>{
+
+filterGrid.innerHTML += `
+
+<div
+class="filter-card"
+onclick="toggleFilter('${filter.key}',this,event)">
+
+<div class="filter-preview">
+
+<canvas
+id="preview-${filter.key}"
+width="120"
+height="120"></canvas>
+
+</div>
+
+<div class="filter-name">
+${filter.name}
+</div>
+
+<div
+class="filter-slider"
+id="slider-${filter.key}">
+
+<div class="filter-intensity">
+
+<span>Intensity</span>
+
+<span
+id="value-${filter.key}">
+0%
+</span>
+
+</div>
+
+<input
+type="range"
+min="0"
+max="100"
+value="0"
+onclick="event.stopPropagation()"
+oninput="
+updateFilter(
+'${filter.key}',
+this.value
+)">
+
+</div>
+
+</div>
+`;
+
+});
+
+/* ===================================================== */
+/* UPLOAD IMAGE                                           */
+/* ===================================================== */
+
+upload.addEventListener("change",(e)=>{
+
+const file = e.target.files[0];
+
+if(!file) return;
+
+const reader = new FileReader();
+
+reader.onload = function(event){
+
+img.onload = ()=>{
+
+resizeCanvas();
+
+drawImage();
+
+generateFilterPreviews();
+
+};
+
+img.src =
+event.target.result;
+
+originalImage =
+event.target.result;
+
+firstUploadedImage =
+event.target.result;
+
+};
+
+reader.readAsDataURL(file);
+
+});
+
+/* ===================================================== */
+/* RESIZE CANVAS                                          */
+/* ===================================================== */
+
+function resizeCanvas(){
+
+canvas.width =
+canvasContainer.clientWidth - 40;
+
+canvas.height =
+canvasContainer.clientHeight - 40;
+
+}
+
+/* ===================================================== */
+/* FILTER STRING                                          */
+/* ===================================================== */
+
+function getFilterString(){
+
+let filterString = `
+brightness(${adjustments.brightness}%)
+contrast(${adjustments.contrast}%)
+saturate(${adjustments.saturation}%)
+`;
+
+if(filters.grayscale.active){
+
+filterString +=
+` grayscale(${filters.grayscale.intensity}%)`;
+
+}
+
+if(filters.blur.active){
+
+filterString +=
+` blur(${filters.blur.intensity / 10}px)`;
+
+}
+
+if(filters.sepia.active){
+
+filterString +=
+` sepia(${filters.sepia.intensity}%)`;
+
+}
+
+if(filters.invert.active){
+
+filterString +=
+` invert(${filters.invert.intensity}%)`;
+
+}
+
+if(filters.contrast.active){
+
+filterString +=
+` contrast(${100 + filters.contrast.intensity}%)`;
+
+}
+
+if(filters.bright.active){
+
+filterString +=
+` brightness(${100 + filters.bright.intensity}%)`;
+
+}
+
+if(filters.cool.active){
+
+filterString +=
+` hue-rotate(${filters.cool.intensity * 2}deg)`;
+
+}
+
+if(filters.warm.active){
+
+filterString +=
+`
+sepia(${filters.warm.intensity * 0.6}%)
+saturate(${100 + filters.warm.intensity}%)
+hue-rotate(-${filters.warm.intensity / 3}deg)
+`;
+
+}
+
+if(filters.vintage.active){
+
+filterString +=
+`
+sepia(${filters.vintage.intensity * 0.7}%)
+contrast(${100 + filters.vintage.intensity / 2}%)
+brightness(${100 - filters.vintage.intensity / 5}%)
+`;
+
+}
+
+if(filters.fade.active){
+
+const fadeValue =
+100 - (filters.fade.intensity / 2);
+
+filterString +=
+`
+contrast(${fadeValue}%)
+saturate(${fadeValue}%)
+brightness(${100 + filters.fade.intensity / 8}%)
+`;
+
+}
+
+return filterString;
+
+}
+
+/* ===================================================== */
+/* DRAW IMAGE                                             */
+/* ===================================================== */
+
+function drawImage(){
+
+if(!img.src) return;
+
+ctx.clearRect(
+0,
+0,
+canvas.width,
+canvas.height
+);
+
+ctx.filter =
+getFilterString();
+
+const imageAspect =
+img.width / img.height;
+
+const canvasAspect =
+canvas.width / canvas.height;
+
+let renderWidth;
+let renderHeight;
+
+if(imageAspect > canvasAspect){
+
+renderWidth =
+canvas.width * scale;
+
+renderHeight =
+renderWidth / imageAspect;
+
+}
+else{
+
+renderHeight =
+canvas.height * scale;
+
+renderWidth =
+renderHeight * imageAspect;
+
+}
+
+ctx.save();
+
+ctx.translate(
+canvas.width / 2,
+canvas.height / 2
+);
+
+ctx.scale(flip,1);
+
+ctx.rotate(
+rotation * Math.PI / 180
+);
+
+ctx.drawImage(
+img,
+-renderWidth/2,
+-renderHeight/2,
+renderWidth,
+renderHeight
+);
+
+ctx.restore();
+
+/* Reset filter setelah gambar foto, agar shadow/noise/crop tidak ikut kena filter */
+ctx.filter = "none";
+
+/* ---- SHADOW OVERLAY ---- */
+if(adjustments.shadow > 0){
+
+const shadowAlpha = adjustments.shadow / 200;
+
+const grad = ctx.createRadialGradient(
+canvas.width/2, canvas.height/2, canvas.width * 0.2,
+canvas.width/2, canvas.height/2, canvas.width * 0.85
+);
+
+grad.addColorStop(0, "rgba(0,0,0,0)");
+grad.addColorStop(1, `rgba(0,0,0,${shadowAlpha * 2})`);
+
+ctx.save();
+ctx.globalCompositeOperation = "multiply";
+ctx.fillStyle = grad;
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+ctx.restore();
+
+}
+
+/* ---- NOISE OVERLAY ---- */
+if(adjustments.noise > 0){
+
+const imageData =
+ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+const data = imageData.data;
+
+const noiseAmt = adjustments.noise * 1.5;
+
+for(let i = 0; i < data.length; i += 4){
+
+const rand = (Math.random() - 0.5) * noiseAmt;
+
+data[i]   = Math.max(0, Math.min(255, data[i]   + rand));
+data[i+1] = Math.max(0, Math.min(255, data[i+1] + rand));
+data[i+2] = Math.max(0, Math.min(255, data[i+2] + rand));
+
+}
+
+ctx.putImageData(imageData, 0, 0);
+
+}
+
+if(cropMode && isDragging){
+
+const x =
+Math.min(cropStartX,cropEndX);
+
+const y =
+Math.min(cropStartY,cropEndY);
+
+const width =
+Math.abs(cropEndX - cropStartX);
+
+const height =
+Math.abs(cropEndY - cropStartY);
+
+ctx.strokeStyle =
+"#10b981";
+
+ctx.lineWidth = 3;
+
+ctx.setLineDash([8]);
+
+ctx.strokeRect(
+x,
+y,
+width,
+height
+);
+
+}
+
+}
+
+/* ===================================================== */
+/* FILTER PREVIEW                                         */
+/* ===================================================== */
+
+function generateFilterPreviews(){
+
+if(!img.src) return;
+
+filterList.forEach(filter=>{
+
+const preview =
+document.getElementById(
+`preview-${filter.key}`);
+
+const pctx =
+preview.getContext("2d");
+
+pctx.clearRect(
+0,
+0,
+preview.width,
+preview.height
+);
+
+let previewFilter =
+"none";
+
+switch(filter.key){
+
+case "grayscale":
+previewFilter =
+"grayscale(100%)";
+break;
+
+case "blur":
+previewFilter =
+"blur(2px)";
+break;
+
+case "sepia":
+previewFilter =
+"sepia(100%)";
+break;
+
+case "invert":
+previewFilter =
+"invert(100%)";
+break;
+
+case "contrast":
+previewFilter =
+"contrast(180%)";
+break;
+
+case "bright":
+previewFilter =
+"brightness(160%)";
+break;
+
+case "cool":
+previewFilter =
+"hue-rotate(180deg)";
+break;
+
+case "warm":
+previewFilter =
+"sepia(60%) saturate(140%)";
+break;
+
+case "vintage":
+previewFilter =
+"sepia(40%) contrast(120%)";
+break;
+
+case "fade":
+previewFilter =
+"opacity(70%)";
+break;
+
+}
+
+pctx.filter =
+previewFilter;
+
+pctx.drawImage(
+img,
+0,
+0,
+preview.width,
+preview.height
+);
+
+});
+
+}
+
+/* ===================================================== */
+/* ADJUSTMENTS                                            */
+/* ===================================================== */
+
+brightnessSlider.addEventListener("input",()=>{
+
+adjustments.brightness =
+Number(brightnessSlider.value) + 100;
+
+brightnessValue.innerText =
+brightnessSlider.value + "%";
+
+drawImage();
+
+});
+
+contrastSlider.addEventListener("input",()=>{
+
+adjustments.contrast =
+Number(contrastSlider.value) + 100;
+
+contrastValue.innerText =
+contrastSlider.value + "%";
+
+drawImage();
+
+});
+
+saturationSlider.addEventListener("input",()=>{
+
+adjustments.saturation =
+Number(saturationSlider.value) + 100;
+
+saturationValue.innerText =
+saturationSlider.value + "%";
+
+drawImage();
+
+});
+
+noiseSlider.addEventListener("input",()=>{
+
+adjustments.noise =
+Number(noiseSlider.value);
+
+noiseValue.innerText =
+noiseSlider.value + "%";
+
+drawImage();
+
+});
+
+shadowSlider.addEventListener("input",()=>{
+
+adjustments.shadow =
+Number(shadowSlider.value);
+
+shadowValue.innerText =
+shadowSlider.value + "%";
+
+drawImage();
+
+});
+
+/* ===================================================== */
+/* FILTER TOGGLE                                          */
+/* ===================================================== */
+
+function toggleFilter(name,card,event){
+
+if(event.target.closest(".filter-slider")) return;
+
+filters[name].active =
+!filters[name].active;
+
+const slider =
+document.getElementById(
+`slider-${name}`);
+
+if(filters[name].active){
+
+card.classList.add("active");
+
+slider.classList.add("active");
+
+}
+else{
+
+card.classList.remove("active");
+
+slider.classList.remove("active");
+
+filters[name].intensity = 0;
+
+slider.querySelector("input").value = 0;
+
+document.getElementById(
+`value-${name}`).innerText =
+"0%";
+
+}
+
+drawImage();
+
+}
+
+function updateFilter(name,value){
+
+filters[name].intensity =
+Number(value);
+
+document.getElementById(
+`value-${name}`).innerText =
+value + "%";
+
+drawImage();
+
+}
+
+/* ===================================================== */
+/* TOOLS                                                  */
+/* ===================================================== */
+
+function activateTool(button){
+
+if(button.classList.contains("active")){
+
+button.classList.remove("active");
+
+return;
+
+}
+
+document
+.querySelectorAll(".tool-btn")
+.forEach(btn=>{
+
+btn.classList.remove("active");
+
+});
+
+button.classList.add("active");
+
+}
+
+/* ===================================================== */
+/* ROTATE SLIDER TOOL                                    */
+/* ===================================================== */
+
+function toggleRotateTool(button){
+
+const wrap =
+document.getElementById("rotateSliderWrap");
+
+if(wrap.style.display === "none"){
+
+wrap.style.display = "flex";
+wrap.style.flexDirection = "column";
+wrap.style.alignItems = "center";
+
+button.classList.add("active");
+
+}else{
+
+wrap.style.display = "none";
+
+button.classList.remove("active");
+
+}
+
+}
+
+function onRotationSlider(val){
+
+rotation = Number(val);
+
+document.getElementById("rotationDeg").innerText = val + "°";
+
+drawImage();
+
+}
+
+/* ===================================================== */
+/* ROTATE (legacy kept for compat)                       */
+/* ===================================================== */
+
+function rotateImage(){
+
+rotation += 90;
+
+const slider = document.getElementById("rotationSlider");
+if(slider){
+slider.value = ((rotation % 360) + 360) % 360 > 180
+? (((rotation % 360) + 360) % 360) - 360
+: ((rotation % 360) + 360) % 360;
+document.getElementById("rotationDeg").innerText = slider.value + "°";
+}
+
+drawImage();
+
+}
+
+/* ===================================================== */
+/* FLIP                                                   */
+/* ===================================================== */
+
+function flipImage(){
+
+flip *= -1;
+
+drawImage();
+
+}
+
+/* ===================================================== */
+/* ZOOM                                                   */
+/* ===================================================== */
+
+function zoomIn(){
+
+scale += 0.1;
+
+drawImage();
+
+}
+
+function zoomOut(){
+
+scale -= 0.1;
+
+if(scale < 0.2){
+
+scale = 0.2;
+
+}
+
+drawImage();
+
+}
+
+/* ===================================================== */
+/* RESET                                                  */
+/* ===================================================== */
+
+function resetImage(){
+
+if(!firstUploadedImage) return;
+
+scale = 1;
+
+rotation = 0;
+
+flip = 1;
+
+cropMode = false;
+
+isDragging = false;
+
+adjustments = {
+
+brightness:100,
+contrast:100,
+saturation:100,
+noise:0,
+shadow:0
+
+};
+
+brightnessSlider.value = 0;
+contrastSlider.value = 0;
+saturationSlider.value = 0;
+noiseSlider.value = 0;
+shadowSlider.value = 0;
+
+brightnessValue.innerText = "0%";
+contrastValue.innerText = "0%";
+saturationValue.innerText = "0%";
+noiseValue.innerText = "0%";
+shadowValue.innerText = "0%";
+
+const rotSlider = document.getElementById("rotationSlider");
+if(rotSlider){ rotSlider.value = 0; }
+const rotDeg = document.getElementById("rotationDeg");
+if(rotDeg){ rotDeg.innerText = "0°"; }
+
+filterList.forEach(f=>{
+
+filters[f.key].active = false;
+
+filters[f.key].intensity = 0;
+
+const sliderBox =
+document.getElementById(
+`slider-${f.key}`);
+
+const sliderInput =
+sliderBox.querySelector("input");
+
+sliderBox.classList.remove("active");
+
+sliderInput.value = 0;
+
+document.getElementById(
+`value-${f.key}`).innerText =
+"0%";
+
+});
+
+document
+.querySelectorAll(".filter-card")
+.forEach(card=>{
+
+card.classList.remove("active");
+
+});
+
+document
+.querySelectorAll(".tool-btn")
+.forEach(btn=>{
+
+btn.classList.remove("active");
+
+});
+
+const resetImg =
+new Image();
+
+resetImg.onload = ()=>{
+
+img = resetImg;
+
+originalImage =
+firstUploadedImage;
+
+drawImage();
+
+generateFilterPreviews();
+
+};
+
+resetImg.src =
+firstUploadedImage;
+
+}
+
+/* ===================================================== */
+/* DOWNLOAD                                               */
+/* ===================================================== */
+
+function downloadImage(){
+
+const link =
+document.createElement("a");
+
+link.download =
+"edited-image.png";
+
+link.href =
+canvas.toDataURL();
+
+link.click();
+
+}
+
+/* ===================================================== */
+/* CROP MODE                                              */
+/* ===================================================== */
+
+function activateCrop(button){
+
+cropMode = !cropMode;
+
+if(cropMode){
+
+activateTool(button);
+
+cropWarning.style.display =
+"block";
+
+setTimeout(()=>{
+
+cropWarning.style.display =
+"none";
+
+},3000);
+
+}
+else{
+
+button.classList.remove("active");
+
+}
+
+}
+
+/* ===================================================== */
+/* CROP SELECT                                            */
+/* ===================================================== */
+
+canvas.addEventListener("mousedown",(e)=>{
+
+if(!cropMode) return;
+
+isDragging = true;
+
+const rect =
+canvas.getBoundingClientRect();
+
+cropStartX =
+e.clientX - rect.left;
+
+cropStartY =
+e.clientY - rect.top;
+
+cropEndX = cropStartX;
+cropEndY = cropStartY;
+
+});
+
+canvas.addEventListener("mousemove",(e)=>{
+
+if(!cropMode || !isDragging) return;
+
+const rect =
+canvas.getBoundingClientRect();
+
+cropEndX =
+e.clientX - rect.left;
+
+cropEndY =
+e.clientY - rect.top;
+
+drawImage();
+
+});
+
+canvas.addEventListener("mouseup",()=>{
+
+if(!cropMode || !isDragging) return;
+
+isDragging = false;
+
+applyCrop();
+
+});
+
+/* ===================================================== */
+/* APPLY CROP                                             */
+/* ===================================================== */
+
+function applyCrop(){
+
+const x =
+Math.min(cropStartX,cropEndX);
+
+const y =
+Math.min(cropStartY,cropEndY);
+
+const width =
+Math.abs(cropEndX - cropStartX);
+
+const height =
+Math.abs(cropEndY - cropStartY);
+
+if(width < 20 || height < 20){
+
+drawImage();
+return;
+
+}
+
+const tempCanvas =
+document.createElement("canvas");
+
+const tempCtx =
+tempCanvas.getContext("2d");
+
+tempCanvas.width = width;
+tempCanvas.height = height;
+
+tempCtx.drawImage(
+canvas,
+x,
+y,
+width,
+height,
+0,
+0,
+width,
+height
+);
+
+const cropped =
+tempCanvas.toDataURL();
+
+img.onload = ()=>{
+
+drawImage();
+
+generateFilterPreviews();
+
+};
+
+img.src = cropped;
+
+originalImage = cropped;
+
+cropMode = false;
+
+document
+.querySelectorAll(".tool-btn")
+.forEach(btn=>{
+
+btn.classList.remove("active");
+
+});
+
+}
+
+/* ===================================================== */
+/* RESIZE                                                 */
+/* ===================================================== */
+
+window.addEventListener(
+"resize",
+()=>{
+
+resizeCanvas();
+
+drawImage();
+
+});
+
+/* ===================================================== */
+/* INIT                                                   */
+/* ===================================================== */
+
+resizeCanvas();
+
+</script>
+
+</body>
+</html>
